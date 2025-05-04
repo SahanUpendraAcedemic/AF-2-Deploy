@@ -4,6 +4,12 @@ import CountryCard from "../components/countryCard";
 import { getFavorites } from "../utils/localStorageUtil";
 import { fetchAllCountries } from "../services/api";
 
+//icons
+import { FiArrowRightCircle } from "react-icons/fi";
+import { FiArrowLeftCircle } from "react-icons/fi";
+import { FaHeart } from "react-icons/fa";
+import { GiGlobe } from "react-icons/gi";
+
 function HomePage() {
   const [countries, setCountries] = useState([]);
   const [filtered, setFiltered] = useState([]);
@@ -11,8 +17,8 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [searchType, setSearchType] = useState("name");
-  const [currentPage, setCurrentPage] = useState(1); // Current page state
-  const [itemsPerPage] = useState(12); // Number of items per page
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12);
 
   useEffect(() => {
     fetchAllCountries()
@@ -25,7 +31,7 @@ function HomePage() {
   }, []);
 
   const handleSearchTypeChange = (type) => {
-    setSearchType(type); // Update the search type based on the filter change
+    setSearchType(type);
   };
 
   const handleSearchValueChange = (searchTerm) => {
@@ -84,7 +90,6 @@ function HomePage() {
     ? filtered.filter((c) => getFavorites().includes(c.cca3))
     : filtered;
 
-  // Pagination logic
   const totalPages = Math.ceil(displayed.length / itemsPerPage);
   const paginatedCountries = displayed.slice(
     (currentPage - 1) * itemsPerPage,
@@ -105,8 +110,9 @@ function HomePage() {
 
   return (
     <div className="bg-gradient-to-b from-blue-50 to-white min-h-screen px-4 sm:px-8 py-8">
+      <GiGlobe className="text-blue-600 text-6xl mx-auto mb-4" />
       <h1 className="text-4xl font-extrabold text-center mb-8 text-blue-800">
-        🌍 Explora
+        Explora
       </h1>
 
       <SearchFilter
@@ -120,15 +126,21 @@ function HomePage() {
           onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
           className="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
         >
-          {showFavoritesOnly ? "Show All" : "Show Favorites ❤️"}
+          {showFavoritesOnly ? (
+            "Show All"
+          ) : (
+            <div className="flex items-center gap-2">
+              Show Favorites <FaHeart />
+            </div>
+          )}
         </button>
       </div>
 
       {error && <p className="text-red-500 text-center">{error}</p>}
       {loading ? (
-        <p className="text-center text-blue-600 text-lg">
-          Loading countries...
-        </p>
+        <div className="flex justify-center items-center h-screen">
+          <img src="/icons8-globe.gif" alt="Loading..." className="w-16 h-16" />
+        </div>
       ) : (
         <>
           <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -144,7 +156,7 @@ function HomePage() {
               disabled={currentPage === 1}
               className="px-4 py-2 mx-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
             >
-              Previous
+              <FiArrowLeftCircle />
             </button>
             <span className="flex items-center justify-center text-lg">
               Page {currentPage} of {totalPages}
@@ -154,7 +166,7 @@ function HomePage() {
               disabled={currentPage === totalPages}
               className="px-4 py-2 mx-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition disabled:opacity-50"
             >
-              Next
+              <FiArrowRightCircle />
             </button>
           </div>
         </>

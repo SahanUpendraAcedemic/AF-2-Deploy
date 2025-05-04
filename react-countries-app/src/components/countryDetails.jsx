@@ -14,7 +14,12 @@ function CountryDetail() {
   }, [code]);
 
   if (error) return <p className="text-center text-red-500">{error}</p>;
-  if (!country) return <p className="text-center">Loading...</p>;
+  if (!country)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <img src="/icons8-globe.gif" alt="Loading..." className="w-16 h-16" />
+      </div>
+    );
 
   return (
     <div className="max-w-4xl mx-auto p-6 bg-white shadow-md rounded-2xl mt-6">
