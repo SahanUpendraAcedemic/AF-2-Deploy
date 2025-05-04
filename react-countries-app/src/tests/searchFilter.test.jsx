@@ -1,10 +1,5 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import SearchFilter from "../components/searchAndFilter";
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import { vi } from "vitest";
-
-// ...
 
 describe("SearchFilter Component", () => {
   test("renders all dropdowns and input field", () => {

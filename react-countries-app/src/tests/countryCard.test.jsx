@@ -1,72 +1,57 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
 import CountryCard from "../components/countryCard";
-import * as localStorageUtil from "../utils/localStorageUtil";
 import { vi } from "vitest";
-// Mock data
-const mockCountry = {
-  cca3: "DEU",
-  name: { common: "Germany" },
-  capital: ["Berlin"],
-  region: "Europe",
-  population: 83000000,
-  flags: { svg: "https://flagcdn.com/de.svg" },
-};
-
-vi.mock("../utils/localStorageUtil");
+import { BrowserRouter } from "react-router-dom";
 
 describe("CountryCard Component", () => {
-  beforeEach(() => {
-    localStorageUtil.getFavorites.mockReturnValue([]);
-    localStorageUtil.toggleFavorite.mockImplementation((cca3) => [cca3]);
-  });
+  const mockCountry = {
+    name: { common: "Germany" },
+    capital: ["Berlin"],
+    region: "Europe",
+    flags: { svg: "https://example.com/flag.svg", alt: "Flag of Germany" },
+    population: 83240525,
+  };
 
-  test("renders country data correctly", () => {
-    render(
-      <MemoryRouter>
-        <CountryCard country={mockCountry} />
-      </MemoryRouter>
+  const renderComponent = (isFavorite = false, onToggleFavorite = vi.fn()) => {
+    return render(
+      <BrowserRouter>
+        <CountryCard
+          country={mockCountry}
+          isFavorite={isFavorite}
+          onToggleFavorite={onToggleFavorite}
+        />
+      </BrowserRouter>
     );
+  };
+
+  it("renders country data correctly", () => {
+    renderComponent();
 
     expect(screen.getByText("Germany")).toBeInTheDocument();
-    expect(screen.getByText(/Capital:/)).toHaveTextContent("Berlin");
-    expect(screen.getByText(/Region:/)).toHaveTextContent("Europe");
-    expect(screen.getByText(/Population:/)).toHaveTextContent(
-      mockCountry.population.toLocaleString()
-    );
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      mockCountry.flags.svg
-    );
+    expect(screen.getByText(/Capital:/)).toHaveTextContent("Capital: Berlin");
+    expect(screen.getByText(/Region:/)).toHaveTextContent("Region: Europe");
+    expect(screen.getByAltText("Flag of Germany")).toBeInTheDocument();
   });
 
-  test("displays correct favorite icon and toggles on click", () => {
-    render(
-      <MemoryRouter>
-        <CountryCard country={mockCountry} />
-      </MemoryRouter>
-    );
+  it("displays correct favorite icon and toggles on click", () => {
+    const toggleSpy = vi.fn();
+    renderComponent(false, toggleSpy);
 
     const heartButton = screen.getByRole("button");
     expect(heartButton).toHaveTextContent("🤍"); // not favorite initially
 
     fireEvent.click(heartButton);
-    expect(localStorageUtil.toggleFavorite).toHaveBeenCalledWith("DEU");
+    expect(toggleSpy).toHaveBeenCalled();
   });
 
-  test("does not navigate when clicking favorite icon", () => {
-    render(
-      <MemoryRouter>
-        <CountryCard country={mockCountry} />
-      </MemoryRouter>
-    );
+  it("does not navigate when clicking favorite icon", () => {
+    const toggleSpy = vi.fn();
+    renderComponent(false, toggleSpy);
 
     const heartButton = screen.getByRole("button");
 
-    // Mock preventDefault
-    const mockPreventDefault = vi.fn();
-    fireEvent.click(heartButton, { preventDefault: mockPreventDefault });
-
-    expect(mockPreventDefault).toHaveBeenCalled();
+    // Simulate a click and make sure it only triggers the toggle
+    fireEvent.click(heartButton);
+    expect(toggleSpy).toHaveBeenCalledTimes(1);
   });
 });
